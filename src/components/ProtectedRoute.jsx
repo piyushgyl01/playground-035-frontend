@@ -1,19 +1,18 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "../features/auth/authSlice";
+import { Navigate, Outlet } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCurrentUser } from '../features/auth/authSlice';
 
-export default function ProtectedRoute() {
-  const { loading, isAuthenticated } = useSelector((state) => state.auth);
+const ProtectedRoute = () => {
+  const { isAuthenticated, loading } = useSelector(state => state.auth);
   const dispatch = useDispatch();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
+    // If we're not authenticated and not loading, try to authenticate from the server
     if (!isAuthenticated && !loading && isCheckingAuth) {
       dispatch(getCurrentUser())
-        .catch((e) => {
-          console.error(e);
-        })
+        .catch(() => {})
         .finally(() => {
           setIsCheckingAuth(false);
         });
@@ -32,5 +31,7 @@ export default function ProtectedRoute() {
     );
   }
 
-  return isAuthenticated ? <Outlet /> :<Navigate to="/login" replace/>
-}
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+};
+
+export default ProtectedRoute;

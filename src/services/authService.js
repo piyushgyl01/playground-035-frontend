@@ -23,14 +23,16 @@ API.interceptors.response.use(
       try {
         await refreshToken();
         return API(originalRequest);
-      } catch (err) {
-        return Promise.reject(err);
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
 );
 
+// Authentication service functions
 export const registerUser = async (userData) => {
   const response = await API.post("/auth/register", userData);
   return response.data;
@@ -52,15 +54,16 @@ export const refreshToken = async () => {
 };
 
 export const getCurrentUser = async () => {
-  const response = await API.post("/auth/me");
+  const response = await API.get("/auth/me");
   return response.data;
 };
 
-export const getGoogleAuthUrl = async () => {
+// OAuth helpers
+export const getGoogleAuthUrl = () => {
   return `${API.defaults.baseURL}/auth/google`;
 };
 
-export const getGithubAuthUrl = async () => {
+export const getGithubAuthUrl = () => {
   return `${API.defaults.baseURL}/auth/github`;
 };
 

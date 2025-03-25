@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import * as authService from "../../services/authService";
 
+// Async thunks
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (userData, { rejectWithValue }) => {
@@ -53,6 +54,7 @@ export const getCurrentUser = createAsyncThunk(
   }
 );
 
+// Auth slice
 export const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -65,15 +67,17 @@ export const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    // For OAuth callback to set user directly
     oauthLoginSuccess: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
       state.loading = false;
-      state.error;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
+      // Register cases
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -85,27 +89,31 @@ export const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+      // Login cases
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
+        state.loading = false;
         state.error = null;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+
+      // Logout cases
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
       })
       .addCase(logoutUser.fulfilled, (state) => {
-        state.loading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.loading = false;
         state.error = null;
       })
       .addCase(logoutUser.rejected, (state, action) => {
@@ -114,6 +122,8 @@ export const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
       })
+
+      // Get current user cases
       .addCase(getCurrentUser.pending, (state) => {
         state.loading = true;
         state.error = null;
